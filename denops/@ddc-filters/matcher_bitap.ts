@@ -8,7 +8,7 @@ export class Filter extends BaseFilter<Params> {
       Params
     >,
   ): Promise<Candidate[]> {
-    const { test } = Asearch(completeStr, { ignoreCase });
+    const { test } = Asearch(` ${completeStr.trim()} `, { ignoreCase });
 
     return Promise.resolve(
       candidates.filter(({ word }) => {
