@@ -15,5 +15,5 @@ jobs:
       - name: Run lint
         run: deno lint
       - name: Run type check
-        run: deno cache ./denops/@ddc-filter/*.ts
+        run: deno cache **/*.ts
 
