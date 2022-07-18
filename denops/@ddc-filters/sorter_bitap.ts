@@ -1,11 +1,11 @@
-import { Asearch, BaseFilter, FilterArguments, Item } from "../../deps.ts";
+import { BaseFilter, FilterArguments, Item } from "../../deps.ts";
 import { getMaxDistance } from "./distance.ts";
 
 type Params = Record<string, never>;
 
 export class Filter extends BaseFilter<Params> {
   override filter(
-    { candidates, completeStr, sourceOptions: { ignoreCase } }: FilterArguments<
+    { candidates, completeStr }: FilterArguments<
       Params
     >,
   ): Promise<Item[]> {
