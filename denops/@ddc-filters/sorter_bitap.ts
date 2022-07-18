@@ -1,4 +1,4 @@
-import { Asearch, BaseFilter, Candidate, FilterArguments } from "../../deps.ts";
+import { Asearch, BaseFilter, FilterArguments, Item } from "../../deps.ts";
 import { getMaxDistance } from "./distance.ts";
 
 type Params = Record<string, never>;
@@ -8,7 +8,7 @@ export class Filter extends BaseFilter<Params> {
     { candidates, completeStr, sourceOptions: { ignoreCase } }: FilterArguments<
       Params
     >,
-  ): Promise<Candidate[]> {
+  ): Promise<Item[]> {
     const trimmed = completeStr.trim();
     if (trimmed.length === 0) return Promise.resolve([]);
 
@@ -19,13 +19,19 @@ export class Filter extends BaseFilter<Params> {
     return Promise.resolve(
       candidates.sort((a, b) => {
         if (typeof a.user_data !== "number") {
-          a.user_data = match(a.word, getMaxDistance[len]);
+          const result = match(a.word, getMaxDistance[len]);
+          a.user_data = result.found
+            ? result.distance
+            : getMaxDistance[len] + 1;
         }
         if (typeof b.user_data !== "number") {
-          b.user_data = match(b.word, getMaxDistance[len]);
+          const result = match(b.word, getMaxDistance[len]);
+          b.user_data = result.found
+            ? result.distance
+            : getMaxDistance[len] + 1;
         }
 
-        const diff = a.user_data - b.user_data;
+        const diff = parseInt(`${a.user_data}`) - parseInt(`${b.user_data}`);
         if (diff !== 0) return diff;
         const lenDiff = a.word.length - b.word.length;
         if (lenDiff !== 0) return lenDiff;

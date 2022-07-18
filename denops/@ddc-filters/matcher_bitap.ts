@@ -1,4 +1,4 @@
-import { Asearch, BaseFilter, Candidate, FilterArguments } from "../../deps.ts";
+import { Asearch, BaseFilter, FilterArguments, Item } from "../../deps.ts";
 import { getMaxDistance } from "./distance.ts";
 
 type Params = Record<string, never>;
@@ -8,7 +8,7 @@ export class Filter extends BaseFilter<Params> {
     { candidates, completeStr, sourceOptions: { ignoreCase } }: FilterArguments<
       Params
     >,
-  ): Promise<Candidate[]> {
+  ): Promise<Item[]> {
     const trimmed = completeStr.trim();
     if (trimmed.length === 0) return Promise.resolve([]);
 
