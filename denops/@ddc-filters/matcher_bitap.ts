@@ -10,7 +10,7 @@ export class Filter extends BaseFilter<Params> {
     >,
   ): Promise<Item[]> {
     const trimmed = completeStr.trim();
-    if (trimmed.length === 0) return Promise.resolve([]);
+    if (trimmed.length === 0) return Promise.resolve(candidates);
 
     const source = ` ${trimmed} `;
     const { match } = Asearch(source, { ignoreCase });

@@ -9,27 +9,18 @@ export class Filter extends BaseFilter<Params> {
       Params
     >,
   ): Promise<Item[]> {
-    const trimmed = completeStr.trim();
-    const source = ` ${trimmed} `;
-    const { match } = Asearch(source, { ignoreCase });
-    const len = Math.min(trimmed.length, getMaxDistance.length - 1);
+    const len = Math.min(completeStr.trim().length, getMaxDistance.length - 1);
 
     return Promise.resolve(
       candidates.sort((a, b) => {
-        if (typeof a.user_data !== "number") {
-          const result = match(a.word, getMaxDistance[len]);
-          a.user_data = result.found
-            ? result.distance
-            : getMaxDistance[len] + 1;
-        }
-        if (typeof b.user_data !== "number") {
-          const result = match(b.word, getMaxDistance[len]);
-          b.user_data = result.found
-            ? result.distance
-            : getMaxDistance[len] + 1;
-        }
+        const adist = typeof a.user_data === "number"
+          ? a.user_data
+          : getMaxDistance[len] + 1;
+        const bdist = typeof b.user_data === "number"
+          ? b.user_data
+          : getMaxDistance[len] + 1;
 
-        const diff = parseInt(`${a.user_data}`) - parseInt(`${b.user_data}`);
+        const diff = adist - bdist;
         if (diff !== 0) return diff;
         const lenDiff = a.word.length - b.word.length;
         if (lenDiff !== 0) return lenDiff;
