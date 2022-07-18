@@ -1,4 +1,5 @@
 import { Asearch, BaseFilter, Candidate, FilterArguments } from "../../deps.ts";
+import { getMaxDistance } from "./distance.ts";
 
 type Params = Record<string, never>;
 
@@ -8,21 +9,27 @@ export class Filter extends BaseFilter<Params> {
       Params
     >,
   ): Promise<Candidate[]> {
-    const { match } = Asearch(` ${completeStr.trim()} `, { ignoreCase });
+    const trimmed = completeStr.trim();
+    if (trimmed.length === 0) return Promise.resolve([]);
 
-    const matches = new Map<Candidate, number>(
-      candidates.map((candidate) => {
-        const result = match(candidate.word);
-        if (!result.found) return [candidate, 4];
-        return [candidate, result.distance];
-      }),
-    );
+    const source = ` ${trimmed} `;
+    const { match } = Asearch(source, { ignoreCase });
+    const len = Math.max(trimmed.length, getMaxDistance.length - 1);
 
     return Promise.resolve(
       candidates.sort((a, b) => {
-        const left = matches.get(a) ?? 0;
-        const right = matches.get(b) ?? 0;
-        return left !== right ? left - right : a.word.length - b.word.length;
+        if (typeof a.user_data !== "number") {
+          a.user_data = match(a.word, getMaxDistance[len]);
+        }
+        if (typeof b.user_data !== "number") {
+          b.user_data = match(b.word, getMaxDistance[len]);
+        }
+
+        const diff = a.user_data - b.user_data;
+        if (diff !== 0) return diff;
+        const lenDiff = a.word.length - b.word.length;
+        if (lenDiff !== 0) return lenDiff;
+        return a.word.localeCompare(b.word);
       }),
     );
   }
