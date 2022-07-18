@@ -1,4 +1,5 @@
-import { Asearch, BaseFilter, Candidate, FilterArguments } from "../../deps.ts";
+import { Asearch, BaseFilter, FilterArguments, Item } from "../../deps.ts";
+import { getMaxDistance } from "./distance.ts";
 
 type Params = Record<string, never>;
 
@@ -7,17 +8,21 @@ export class Filter extends BaseFilter<Params> {
     { candidates, completeStr, sourceOptions: { ignoreCase } }: FilterArguments<
       Params
     >,
-  ): Promise<Candidate[]> {
-    const source = ` ${completeStr.trim()} `;
-    const { test } = Asearch(source, { ignoreCase });
-    const threshold = Math.min(Math.floor(completeStr.trim().length / 2), 3) as
-      | 0
-      | 1
-      | 2
-      | 3;
+  ): Promise<Item[]> {
+    const trimmed = completeStr.trim();
+    if (trimmed.length === 0) return Promise.resolve(candidates);
+
+    const source = ` ${trimmed} `;
+    const { match } = Asearch(source, { ignoreCase });
+    const len = Math.min(trimmed.length, getMaxDistance.length - 1);
 
     return Promise.resolve(
-      candidates.filter(({ word }) => test(word, threshold)),
+      candidates.flatMap(({ user_data: _, ...candidate }) => {
+        const result = match(candidate.word, getMaxDistance[len]);
+        return result.found
+          ? [{ ...candidate, user_data: result.distance }]
+          : [];
+      }),
     );
   }
   override params(): Params {
