@@ -10,8 +10,6 @@ export class Filter extends BaseFilter<Params> {
     >,
   ): Promise<Item[]> {
     const trimmed = completeStr.trim();
-    if (trimmed.length === 0) return Promise.resolve([]);
-
     const source = ` ${trimmed} `;
     const { match } = Asearch(source, { ignoreCase });
     const len = Math.min(trimmed.length, getMaxDistance.length - 1);
