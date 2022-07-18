@@ -14,7 +14,7 @@ export class Filter extends BaseFilter<Params> {
 
     const source = ` ${trimmed} `;
     const { match } = Asearch(source, { ignoreCase });
-    const len = Math.max(trimmed.length, getMaxDistance.length - 1);
+    const len = Math.min(trimmed.length, getMaxDistance.length - 1);
 
     return Promise.resolve(
       candidates.sort((a, b) => {
