@@ -5,14 +5,14 @@ type Params = Record<string, never>;
 
 export class Filter extends BaseFilter<Params> {
   override filter(
-    { candidates, completeStr }: FilterArguments<
+    { items, completeStr }: FilterArguments<
       Params
     >,
   ): Promise<Item[]> {
     const len = Math.min(completeStr.trim().length, getMaxDistance.length - 1);
 
     return Promise.resolve(
-      candidates.sort((a, b) => {
+      items.sort((a, b) => {
         const adist = typeof a.user_data === "number"
           ? a.user_data
           : getMaxDistance[len] + 1;
